@@ -1,6 +1,10 @@
+#pragma once
 #ifndef VECTOR_H
 #define VECTOR_H
-#include <stddef.h>
+#include <stdlib.h>
+
+#define VEC_MAX_SIZE    640
+#define VEC_GROWTH_RATE 1.5 // golden ratio?
 
 typedef enum {
   VEC_OK,
@@ -15,7 +19,6 @@ typedef struct {
 } Vector_int;
 
 Vector_int Vector_int_init(const size_t);
-Vector_status Vector_int_grow(Vector_int*);
 Vector_status Vector_int_push(Vector_int*, int);
 void Vector_int_destroy(Vector_int*);
 void Vector_int_log(const Vector_int*);

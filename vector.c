@@ -1,9 +1,8 @@
 #include "vector.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 
-static void panic(const char *msg) {
+static inline void panic(const char *msg) {
   fprintf(stderr, "PANIC: %s\n", msg);
   exit(1);
 }
@@ -21,24 +20,20 @@ Vector_int Vector_int_init(const size_t initial_capacity) {
   return vec;
 }
 
-Vector_status Vector_int_grow(Vector_int *vec) {
-  size_t new_capacity = vec->capacity * 2;
-  if (new_capacity > SIZE_MAX / 2) panic(ERR_VEC_OVFLW);
-  if (vec->capacity == vec->size) {
-    vec->capacity = new_capacity;
-    vec->data = realloc(vec->data, vec->capacity * sizeof(int));
-    if (vec->data == NULL) return VEC_GROW_FAIL;
-    return VEC_OK;
-  }
-  return VEC_GROW_FAIL;
+static Vector_status Vector_int_grow(Vector_int *vec) {
+  size_t d_vec_capacity = vec->capacity * VEC_GROWTH_RATE;
+  if ((d_vec_capacity + vec->capacity) > VEC_MAX_SIZE) return VEC_GROW_FAIL;
+  vec->capacity += d_vec_capacity;
+  vec->data = realloc(vec->data, vec->capacity * sizeof(int));
+  return vec->data == NULL
+    ? VEC_GROW_FAIL
+    : VEC_OK;
 }
 
 Vector_status Vector_int_push(Vector_int *vec, int elem) {
   if (vec->size >= vec->capacity) {
-    Vector_status status = Vector_int_grow(vec);
-    if (status == VEC_GROW_FAIL) return VEC_PUSH_FAIL;
+    if (Vector_int_grow(vec) == VEC_GROW_FAIL) return VEC_PUSH_FAIL;
   }
-  if (vec->data == NULL) return VEC_PUSH_FAIL;
   vec->data[vec->size++] = elem;
   return VEC_OK;
 }
