@@ -1,9 +1,6 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 #include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
 
 typedef enum {
   VEC_OK,

@@ -1,4 +1,7 @@
 #include "vector.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
 
 static void panic(const char *msg) {
   fprintf(stderr, "PANIC: %s\n", msg);

@@ -1,4 +1,6 @@
 #include "test.h"
+#include "vector.h"
+#include <stdio.h>
 
 int _test_vec(void) {
   // Test Vector_int_init()

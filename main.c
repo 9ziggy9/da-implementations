@@ -21,7 +21,9 @@
 
 #include "vector.h"
 #include "test.h"
+#include <stdio.h>
 
 int main(void) {
+  printf("Starting program...\n");
   _test_vec();
 }
