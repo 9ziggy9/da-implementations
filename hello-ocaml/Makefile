@@ -1,5 +1,5 @@
 all: hello.ml
-	ocamlopt -o a.out hello.ml
+	ocamlfind opt -package core -thread -linkpkg hello.ml
 	./a.out
 
 clean:
