@@ -28,6 +28,11 @@
 
 open Printf
 
+type io_channels = {
+  ic: in_channel;
+  oc: out_channel;
+}
+
 module SafeIO = struct
   let open_out_gen flags perm filename
       : (out_channel, string) result =
@@ -92,18 +97,46 @@ let write_line_to_file filename line =
      write_result
   | Error e -> Error e
 
+(* let new_line_entry line_count line = *)
+(*   let formatted_line = string_of_int line_count ^ ". " ^ line *)
+(*   in line_count + 1, formatted_line *)
+
+let new_line_entry line_count line =
+  string_of_int (line_count + 1) ^ ". " ^ line ^ "\n"
+
 (* Pay very close to how we can compose here! *)
+(* Note that in this example, we cannot acces the line numbers further *)
+(* down in the pipeline of our main function. *)
+(* let () = *)
+(*   let filename = "test.txt" in *)
+(*   let _ = match read_and_count_lines filename with *)
+(*   | Ok line_count -> printf "Current lines: %d\n" line_count *)
+(*   | Error e       -> printf "Error: couldn't read file - %s\n" e in *)
+
+(*   (\* prompt *\) *)
+(*   printf ">>> "; *)
+
+(*   let line = read_line () in *)
+(*   match write_line_to_file filename line with *)
+(*   | Ok () -> () *)
+(*   | Error e -> printf "Error: couldn't write to file - %s\n" e *)
+
+(* Here is an improvement which allows us to write custom logic using *)
+(* the output of read_and_count_lines *)
 
 let () =
   let filename = "test.txt" in
-  match read_and_count_lines filename with
-  | Ok line_count -> printf "Current lines: %d\n" line_count
-  | Error e       -> printf "Error: couldn't read file - %s\n" e;
-
-  (* prompt *)
-  printf ">>> ";
-
-  let line = read_line () in
-  match write_line_to_file filename line with
-  | Ok () -> ()
-  | Error e -> printf "Error: couldn't write to file - %s\n" e
+  let read_and_count_results = read_and_count_lines filename in
+  match read_and_count_results with
+  | Ok line_count ->
+     printf "Current lines: %d\n" line_count;
+     printf ">>> ";
+     let line = read_line () in
+     let new_line = new_line_entry line_count line in
+     begin match write_line_to_file new_line filename with
+     | Ok ()   ->
+        printf "New entry: %s\n" (new_line_entry line_count line);
+        printf "Added line %d to file %s\n" (line_count + 1) filename;
+     | Error e -> printf "Error: couldn't write to file - %s\n" e
+     end
+  | Error e -> printf "Error: couldn't read file - %s\n" e
