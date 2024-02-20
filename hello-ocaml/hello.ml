@@ -5,7 +5,9 @@ type person =
 | Loud   of int
 | Chatty of int * string;;
 
-let p = Loud(10) in
+let p = Chatty(10, "Hello World!") in
 match p with
-| Loud (v) -> Core.printf "volume level of %d\n" v
-| _        -> print_endline "something else"
+| Loud   (v)     -> Core.printf   "volume level of %d\n" v
+| Chatty (v,msg) -> Core.printf   "%s at volume %d\n"    msg v
+| _              -> print_endline "something else" 
+
