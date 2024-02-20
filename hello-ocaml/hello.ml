@@ -43,7 +43,39 @@ module SafeIO = struct
       : (unit, string) result =
     try close_out_noerr oc; Ok() with
     | Sys_error e -> Error e
+
+  let open_in filename
+      : (in_channel, string) result =
+    try Ok (open_in filename) with
+    | Sys_error e -> Error e
 end
+
+(* let count_lines filename = *)
+(*   let ic = open_in filename in *)
+(*   let next_line () = *)
+(*     try Some (input_line ic, ()) *)
+(*     with End_of_file -> None  (\* Correctly handle the end of file *\) *)
+(*   in *)
+(*   let line_seq = Seq.unfold (fun () -> next_line ()) () in *)
+(*   Seq.fold_left (fun acc _ -> acc + 1) 0 line_seq *)
+
+let count_lines ic =
+  let try_read () =
+    try Some (input_line ic) with End_of_file -> None in
+    let rec loop count =
+      match try_read () with
+      | Some _ -> loop (count + 1)
+      | None   -> count
+    in loop 0
+
+
+let read_and_count_lines filename =
+  match SafeIO.open_in filename with
+  | Ok ic ->
+     let lines = count_lines ic in
+     close_in ic;
+     Ok lines
+  | Error e -> Error e
 
 (* Note that the Ok block may seem confusing at first. *)
 (*
@@ -60,10 +92,18 @@ let write_line_to_file filename line =
      write_result
   | Error e -> Error e
 
+(* Pay very close to how we can compose here! *)
+
 let () =
   let filename = "test.txt" in
+  match read_and_count_lines filename with
+  | Ok line_count -> printf "Current lines: %d\n" line_count
+  | Error e       -> printf "Error: couldn't read file - %s\n" e;
+
+  (* prompt *)
   printf ">>> ";
+
   let line = read_line () in
   match write_line_to_file filename line with
   | Ok () -> ()
-  | Error e -> printf "Error: %s\n" e
+  | Error e -> printf "Error: couldn't write to file - %s\n" e
