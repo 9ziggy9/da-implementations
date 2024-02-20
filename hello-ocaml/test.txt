@@ -1,6 +1,1 @@
-hello file system
-Hello, from input!
-Hello, from input!
-hello from readlinehello kittenshello puppers
-
-hello rodents
+hello world!
