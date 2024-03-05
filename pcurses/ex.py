@@ -10,7 +10,9 @@ def event(output_win, input_win, input_str):
     if char == 27:  # Escape key
         sys.exit(0)
     elif char == 10:  # Enter key
-        output_win.addstr(input_str + "\n")
+        # Calculate the correct position for the new line
+        y, x = output_win.getyx()
+        output_win.addstr(y + 1 if y == 0 else y, 1, input_str + "\n")
         input_str = ""  # Clear input buffer
         input_win.clear()
         input_win.box()
@@ -26,6 +28,7 @@ def event(output_win, input_win, input_str):
         input_win.addstr(1, 1, input_str)
 
     event(output_win, input_win, input_str) # recursive call
+
 
 def main(stdscr):
     # Initialize curses
@@ -47,6 +50,7 @@ def main(stdscr):
     # Configure scrolling
     output_win.scrollok(True)
     output_win.idlok(1)
+    output_win.box()
 
     # Initialize input buffer
     input_str = ""
