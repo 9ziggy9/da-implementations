@@ -50,17 +50,14 @@ module type GridBasis = sig
   type data
   val should_void : data -> bool
   val string_from : (data -> string) option
-  val (===)       : data -> data -> bool
 end
 
 module type Grid = sig
   type t
   type grid
-  val make      : t list list -> grid
-  val iterate   : grid -> (t -> unit) -> unit
+  val make    : t list list -> grid
+  val iterate : grid -> (t -> unit) -> unit
   val string_of : grid -> string 
-  val map       : grid -> (t -> t) -> grid
-  val (@@)      : grid -> int * int -> t option
 end
 
 (* GridMapping is a Functor *)
@@ -119,37 +116,10 @@ module GridMapping (G : GridBasis) : Grid with type t = G.data = struct
       | NoRow       -> ""
       | Row (r, rs) -> string_of_row r ^ "\n" ^ string_of_grid rs
     in string_of_grid g
-
-  let map (PrivateGrid g) f =
-    let rec map_row (r : row_internal) = match r with
-      | NoCell            -> NoCell
-      | Cell (Some x, xs) -> Cell (Some (f x), map_row xs)
-      | Cell (None, xs)   -> Cell (None, map_row xs)
-    in
-    let rec map_grid (g : grid_internal) = match g with
-      | NoRow       -> NoRow
-      | Row (r, rs) -> Row (map_row r, map_grid rs)
-    in
-    PrivateGrid (map_grid g)
-
-  (* What happens if I have a name collision with this shit? *)
-  let (@@) (grid : grid) (coords : int * int) : t option =
-    let (x, y) = coords in
-    let rec find_row (g : grid_internal) (x : int) = match g with
-      | NoRow       -> None
-      | Row (r, rs) -> if x = 0 then Some r else find_row rs (x - 1)
-    and find_cell (r : row_internal) (y : int) = match r with
-      | NoCell       -> None
-      | Cell (v, rs) -> if y = 0 then v else find_cell rs (y - 1)
-    in
-    match find_row (let (PrivateGrid g) = grid in g) x with
-    | None      -> None
-    | Some row -> find_cell row y
 end
 
-  module ZeroGrid = GridMapping(struct
-    type data = int
-    let should_void = fun n -> n = 0
-    let string_from = Some string_of_int
-    let (===)       = fun n -> fun m -> n = m
+module ZeroGrid = GridMapping(struct
+  type data = int
+  let should_void = fun n -> n = 0
+  let string_from = Some string_of_int
 end)
