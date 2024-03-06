@@ -1,51 +1,3 @@
-(* module Grid1 = struct *)
-(*   type 'a grid = *)
-(*     | Row of 'a row * 'a grid *)
-(*     | NoRow *)
-(*   and 'a row = *)
-(*     | Cell of 'a option * 'a row *)
-(*     | NoCell *)
-
-(*   let rec make (rows : 'a option list list) : 'a grid = *)
-(*     let rec make_row (xs : 'a option list) : 'a row = *)
-(*       match xs with *)
-(*       | []      -> NoCell *)
-(*       | y :: ys -> Cell (y, make_row ys) *)
-(*     in *)
-(*     match rows with *)
-(*     | []       -> NoRow *)
-(*     | [] :: rs -> make rs (\* skip empty rows *\) *)
-(*     | r  :: rs -> Row (make_row r, make rs) *)
-(* end *)
-
-(* module type Gridable = sig *)
-(*   type t *)
-(*   val should_void : t -> bool *)
-(* end *)
-
-(* module Grid (G : Gridable) = struct *)
-(*   type 'a grid = *)
-(*     | Row of 'a row * 'a grid *)
-(*     | NoRow *)
-(*   and 'a row = *)
-(*     | Cell of 'a * 'a row *)
-(*     | NoCell *)
-
-(*   let make_el (x : G.t) : G.t option = *)
-(*     if G.should_void x then None else Some x *)
-
-(*   let rec make (rows : G.t list list) : G.t option grid = *)
-(*     let rec make_row (xs : G.t list) : G.t option row = *)
-(*       match xs with *)
-(*       | []      -> NoCell *)
-(*       | y :: ys -> Cell (make_el y, make_row ys) *)
-(*     in *)
-(*     match rows with *)
-(*     | []       -> NoRow *)
-(*     | [] :: rs -> make rs (\* skip empty rows *\) *)
-(*     | r  :: rs -> Row (make_row r, make rs) *)
-(* end *)
-
 module type GridBasis = sig
   type data
   val should_void : data -> bool
@@ -164,7 +116,7 @@ module GridMapping (Basis : GridBasis) : Grid with type t = Basis.data = struct
     | Some row -> find_cell row y
 end
 
-  module ZeroGrid = GridMapping(struct
+module ZeroGrid = GridMapping(struct
     type data = int
     let should_void = fun n -> n = 0
     let string_from = Some string_of_int
